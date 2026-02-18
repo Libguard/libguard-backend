@@ -30,6 +30,3 @@ class RegisterSerializer(serializers.Serializer):
         if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
             raise serializers.ValidationError('A senha precisa ter pelo menos um caractere especial (!@#$...)')
         return data
-
-class RefreshTokenSerializer(serializers.Serializer):
-    refresh = serializers.CharField(required=True, max_length=500)
