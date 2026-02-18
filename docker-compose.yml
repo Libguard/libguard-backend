@@ -7,3 +7,28 @@ services:
     ports:
       - "8000:8000"
     restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:4.2.4-management
+    ports:
+      - 5672:5672
+      - 15672:15672
+    restart: unless-stopped
+    volumes:
+      - rabbitmq-lib:/var/lib/rabbitmq/
+    env_file:
+      - .env
+
+  celery:
+    build: .
+    command: uv run celery -A core worker --loglevel=info
+    volumes:
+      - .:/libguard
+    depends_on:
+      - rabbitmq
+    restart: unless-stopped
+    env_file:
+      - .env
+
+volumes:
+  rabbitmq-lib:
