@@ -63,3 +63,37 @@ def login_user_service(email, password, ip):
         raise e
     except Exception as e:
         raise ValidationError(f"Falha ao validar o usuário: {str(e)}")
+    
+@transaction.atomic
+def refresh_token_service(refresh, ip):
+    try:
+        token = RefreshToken(refresh)
+
+        hash_token = hashlib.sha256(refresh.encode()).hexdigest()
+
+        stored_token = RefreshModel.objects.filter(
+            hash_token= hash_token
+        ).first()
+
+        if not stored_token:
+            raise AuthenticationFailed("Refresh token não reconhecido")
+        
+        if stored_token.expires_at < timezone.now():
+            stored_token.delete()
+            raise AuthenticationFailed("Refresh token expirado")
+        
+        if stored_token.ip != ip:
+            stored_token.delete()
+            raise AuthenticationFailed("Refresh token criado em outro IP.")
+        
+        user = stored_token.user_id
+        stored_token.delete()
+
+        refresh, access = _gen_tokens(user, ip)
+
+        return {
+            "refresh": refresh,
+            "access": access
+        }
+    except Exception:
+        raise AuthenticationFailed("Refresh token inválido")
