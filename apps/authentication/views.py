@@ -21,11 +21,29 @@ class RegisterView(APIView):
                 ip=ip
             )
 
-            return Response({
+            response = Response({
                 "refresh": result["refresh"],
-                "access": result["access"],
-                "user": result["user"]
             }, status=status.HTTP_201_CREATED)
+    
+            response.set_cookie(
+                key="access_token",
+                value=result["access"],
+                httponly=True,
+                secure=False,         # habilitar True qnd for pra deploy
+                samesite="Lax",       
+                max_age=60 * 15       
+            )
+
+            response.set_cookie(
+                key="refresh_token",
+                value=result["refresh"],
+                httponly=True, 
+                secure=False,         # habilitar True qnd for pra deploy
+                samesite="Lax",
+                max_age=60 * 60 * 24 * 30 
+            )
+
+            return response
         except ValidationError as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -43,11 +61,26 @@ class LoginView(APIView):
                 ip=ip
             )
 
-            return Response({
-                "refresh": result["refresh"],
-                "access": result["access"],
-                "user": result["user"]
-            }, status=status.HTTP_200_OK)
+            response = Response({"message": "Login realizado com sucesso"},status=status.HTTP_200_OK)
+
+            response.set_cookie(
+                key="access_token",
+                value=result["access"],
+                httponly=True,
+                secure=False,         # habilitar True qnd for pra deploy
+                samesite="Lax",       
+                max_age=60 * 15       
+            )
+
+            response.set_cookie(
+                key="refresh_token",
+                value=result["refresh"],
+                httponly=True, 
+                secure=False,         # habilitar True qnd for pra deploy
+                samesite="Lax",
+                max_age=60 * 60 * 24 * 30 
+            )
+            return response
         except AuthenticationFailed as e:
             return Response({"Não autorizado.": str(e)}, status=status.HTTP_401_UNAUTHORIZED)
         except ValidationError as e:
