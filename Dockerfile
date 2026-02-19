@@ -5,6 +5,8 @@ WORKDIR /libguard
 RUN pip install --upgrade pip && pip install uv --no-cache-dir
 
 COPY pyproject.toml uv.lock ./
+
+ENV UV_NO_VENV=1
 RUN uv sync
 
 COPY . .
