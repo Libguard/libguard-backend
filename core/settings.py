@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config, Csv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -40,6 +41,7 @@ INSTALLED_APPS = [
     "apps.accounts",
     "apps.authentication",
     "rest_framework",
+    "corsheaders",
 ]
 
 AUTH_USER_MODEL = "accounts.User"
@@ -48,9 +50,16 @@ SIMPLE_JWT = {
     "USER_ID_FIELD": "user_id",
 }
 
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
