@@ -2,11 +2,15 @@ FROM python:3.14-bookworm
 
 WORKDIR /libguard
 
+RUN apt-get update && apt-get install -y curl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh \
+    | sh -s -- -b /usr/local/bin
 RUN pip install --upgrade pip && pip install uv --no-cache-dir
 
 COPY pyproject.toml uv.lock ./
 
-ENV UV_NO_VENV=1
 RUN uv sync
 
 COPY . .
