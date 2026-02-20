@@ -3,7 +3,9 @@ services:
     build: .
     volumes:
       - .:/libguard
-      - ./data:/libguard/data
+      - /libguard/.venv
+      - tmp:/tmp/projects
+      #- ./data:/libguard/data
     ports:
       - "8000:8000"
     restart: unless-stopped
@@ -24,6 +26,8 @@ services:
     command: uv run celery -A core worker --loglevel=info
     volumes:
       - .:/libguard
+      - /libguard/.venv
+      - tmp:/tmp/projects
     depends_on:
       - rabbitmq
     restart: unless-stopped
@@ -32,3 +36,4 @@ services:
 
 volumes:
   rabbitmq-lib:
+  tmp:

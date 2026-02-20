@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     "apps.accounts",
     "apps.authentication",
     "rest_framework",
+    "django_celery_results",
+    "apps.dependency_analysis",
     "corsheaders",
 ]
 
@@ -93,7 +95,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'data/db.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
@@ -137,6 +139,7 @@ STATIC_URL = 'static/'
 # Celery configs
 
 CELERY_BROKER_URL = config("RABBITMQ_URL")
+CELERY_RESULT_BACKEND = "django-db"
 CELERY_TIMEZONE = "America/Sao_Paulo"
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
