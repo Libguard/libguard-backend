@@ -1,5 +1,5 @@
 from rest_framework.views import APIView
-from apps.dependency_analysis.serializers import ProjectUplaodSerializer
+from apps.projects.serializers.upload_serializer import UploadSerializer
 from apps.dependency_analysis.tasks import analyze
 from rest_framework.response import Response
 from rest_framework import status
@@ -11,8 +11,8 @@ from pathlib import Path
 class ProjectUploadView(APIView):
     parser_classes = [MultiPartParser]
 
-    def post(self, request):
-        serializer = ProjectUplaodSerializer(data=request.data)
+    def post(self, request, project_id):
+        serializer = UploadSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         project_compressed = serializer.validated_data["project_path"] # type: ignore
@@ -35,4 +35,6 @@ class ProjectUploadView(APIView):
         except Exception as e:
             return Response({"error": f"{e}"}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
         
+        serializer.save(project_id=project_id)
+
         return Response({"detail": "DEU BOM AQUI"}, status=status.HTTP_202_ACCEPTED)
