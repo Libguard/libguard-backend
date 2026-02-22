@@ -4,12 +4,13 @@ import subprocess
 import os
 import shutil
 import json
+from apps.projects.models.version_model import Version
 
 @shared_task
-def analyze(project_path):
+def analyze(project_path, upload_id):
     temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".json")
     temp_path = temp_file.name
-    temp_file.close()  
+    temp_file.close()
 
     try:
         subprocess.run(
@@ -28,8 +29,15 @@ def analyze(project_path):
         with open(temp_path, "r") as f:
             trivy_json = json.load(f)
 
-        return trivy_json
-        #_save_result(trivy_json)
+        from apps.projects.models.upload_model import Upload
+        upload = Upload.objects.get(id=upload_id)
+
+        Version.objects.create(
+            is_analysis_complete=True,
+            analysis=trivy_json,
+            project_id=upload.project_id,
+            upload_id=upload
+        )
     
     except subprocess.CalledProcessError as e:
         raise Exception("It wasn't possible to analyze the project.")
@@ -39,16 +47,3 @@ def analyze(project_path):
             os.remove(temp_path)
         if os.path.exists(project_path):
             shutil.rmtree(project_path) # Delete the entire directory
-
-def _save_result(trivy_json):
-    print("TO AQUI!!")
-    
-    """
-    TA TUDO ERRADO >:{
-
-    result = json.loads(trivy_json)
-
-    for k, v in result.items():
-        if "Title" in k:
-            print(v["Title"])
-    """
