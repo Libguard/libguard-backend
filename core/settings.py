@@ -38,12 +38,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    "apps.accounts",
     "rest_framework",
     "corsheaders",
     "django_celery_results",
-    "apps.dependency_analysis",
+    "apps.accounts",
     "apps.authentication",
+    "apps.dependency_analysis",
     "apps.projects",
 ]
 
