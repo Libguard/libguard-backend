@@ -4,13 +4,12 @@ from rest_framework.exceptions import ValidationError
 import zipfile
 
 class UploadSerializer(serializers.ModelSerializer):
-    project_path = serializers.FileField()
-
     class Meta:
         model = Upload
         fields = ["id", "project_id", "created_at", "expires_at"]
         extra_kwargs = {
             "id": {"read_only": True},
+            "project_id": {"read_only": True},
             "created_at": {"read_only": True},
             "expires_at": {"read_only": True}
         }

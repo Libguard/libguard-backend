@@ -1,5 +1,7 @@
 from rest_framework.views import APIView
-from apps.projects.serializers.upload_serializer import UploadSerializer
+from apps.projects.models.upload_model import Upload
+from apps.dependency_analysis.serializers import ProjectUplaodSerializer
+from apps.projects.models.project_model import Project
 from apps.dependency_analysis.tasks import analyze
 from rest_framework.response import Response
 from rest_framework import status
@@ -12,13 +14,13 @@ class ProjectUploadView(APIView):
     parser_classes = [MultiPartParser]
 
     def post(self, request, project_id):
-        serializer = UploadSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        local_serializer = ProjectUplaodSerializer(data=request.data)
+        local_serializer.is_valid(raise_exception=True)
 
-        project_compressed = serializer.validated_data["project_path"] # type: ignore
+        project_compressed = local_serializer.validated_data["project_path"] # type: ignore
 
-        project_id = str(uuid.uuid4()) # Pesquisar depois oq é cada UUID
-        project_path = Path("/tmp/projects/") / project_id # /tmp/projects/12345678 por exemplo
+        project_compressed_id = str(uuid.uuid4()) # Pesquisar depois oq é cada UUID
+        project_path = Path("/tmp/projects/") / project_compressed_id # /tmp/projects/12345678 por exemplo
         project_path.mkdir(parents=True, exist_ok=True) # o 'parents' permite criar pastas dentro de pastas e o 'exists_ok' é pra não lançar uma exception se o diretório já existir
 
         # Extract paths and files at zip file
@@ -29,12 +31,17 @@ class ProjectUploadView(APIView):
                     continue
                 zp.extract(file, project_path)
 
+        project = Project.objects.get(id=project_id)
+        upload = Upload.objects.create(project_id=project)
+
         try:
             #task = analyze.delay(str(project_path))
-            analyze.delay(str(project_path))
+            analyze.delay(str(project_path), upload.id) #type: ignore
         except Exception as e:
             return Response({"error": f"{e}"}, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
         
-        serializer.save(project_id=project_id)
+    
+
+        
 
         return Response({"detail": "DEU BOM AQUI"}, status=status.HTTP_202_ACCEPTED)

@@ -7,7 +7,7 @@ import json
 from apps.projects.models.version_model import Version
 
 @shared_task
-def analyze(project_path):
+def analyze(project_path, upload_id):
     temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".json")
     temp_path = temp_file.name
     temp_file.close()
@@ -29,9 +29,14 @@ def analyze(project_path):
         with open(temp_path, "r") as f:
             trivy_json = json.load(f)
 
+        from apps.projects.models.upload_model import Upload
+        upload = Upload.objects.get(id=upload_id)
+
         Version.objects.create(
             is_analysis_complete=True,
-            analysis=trivy_json
+            analysis=trivy_json,
+            project_id=upload.project_id,
+            upload_id=upload
         )
     
     except subprocess.CalledProcessError as e:
