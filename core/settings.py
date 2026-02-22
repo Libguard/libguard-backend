@@ -28,6 +28,11 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'apps.authentication.authentication.CookieJWTAuthentication',
+    ),
+}
 
 # Application definition
 
@@ -50,7 +55,15 @@ INSTALLED_APPS = [
 AUTH_USER_MODEL = "accounts.User"
 
 SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
+    
+    "SIGNING_KEY": SECRET_KEY, 
+    
+    "ALGORITHM": "HS256",
+    
     "USER_ID_FIELD": "user_id",
+    "USER_ID_CLAIM": "user_id",
 }
 
 CORS_ALLOWED_ORIGINS = [

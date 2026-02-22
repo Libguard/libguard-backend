@@ -27,7 +27,7 @@ class RegisterView(APIView):
             )
 
             response = Response({
-                "refresh": result["refresh"],
+                "message": "Registrado com sucesso.",
             }, status=status.HTTP_201_CREATED)
     
             response.set_cookie(
