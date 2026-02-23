@@ -2,6 +2,7 @@ from rest_framework.views import APIView
 from apps.projects.models.upload_model import Upload
 from apps.dependency_analysis.serializers import ProjectUplaodSerializer
 from apps.projects.models.project_model import Project
+from rest_framework.permissions import IsAuthenticated
 from apps.dependency_analysis.tasks import analyze
 from rest_framework.response import Response
 from rest_framework import status
@@ -12,6 +13,7 @@ from pathlib import Path
 
 class ProjectUploadView(APIView):
     parser_classes = [MultiPartParser]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, project_id):
         local_serializer = ProjectUplaodSerializer(data=request.data)
